@@ -20,7 +20,7 @@ namespace XssedCrawler {
 		const string ArchiveUrl = BaseUrl + @"/archive/page=";
 		static int xssPage = 1;
 		static void Main(string[] args) {
-			int maxPage = 1530;
+			int maxPage = 1530; //the website hasn't been updated in a while, so this is valid now. might need to dynamically set this if the website becomes active
 			for (int page = 1; page <= maxPage; page++) {
 				string data = tryGetUrlData(ArchiveUrl + page);
 				Regex regexMirror = new Regex(@"/mirror/\w*"); //grab the url of /mirror/*
@@ -35,11 +35,11 @@ namespace XssedCrawler {
 				Regex regexVuln = new Regex("http://vuln.xssed.net(.*?)(?=\\\">)"); //grab the entire url starting with vuln.xssed.net and stopping before the end of the <a> tag
 				var vulnUrl = regexVuln.Matches(data);
 				data = tryGetUrlData(vulnUrl[0].ToString());
-				saveVulnPage(data);
+				savePageToDisk(data);
 			}
 		}
 
-		private static void saveVulnPage(string data) {
+		private static void savePageToDisk(string data) {
 			string fileName = String.Format("Webpage_{0}", xssPage++);
 			string filePath = String.Format(@"webpage\{0}.txt", fileName); //note this will save in Debug or Release folder if run in VS
 			File.WriteAllText(filePath, data);
@@ -60,8 +60,7 @@ namespace XssedCrawler {
 
 			Stream responseStream = response.GetResponseStream();
 			StreamReader reader = new StreamReader(responseStream);
-			string data = reader.ReadToEnd();
-			return data;
+			return reader.ReadToEnd();
 		}
 	}
 }
