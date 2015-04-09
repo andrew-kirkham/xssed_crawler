@@ -8,18 +8,13 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace XssedCrawler {
-	/// <summary>
-	/// Crawl through xssed.com and save all of the archived vulnerable webpages to the file system
-	/// </summary>
-	/// <remarks>
-	/// This takes a long time ~7hours. Not all archived pages have any useful html.
-	/// </remarks>
-	class Crawler {
-
+	public class Crawler {
 		const string BaseUrl = @"http://www.xssed.com";
 		const string ArchiveUrl = BaseUrl + @"/archive/page=";
 		static int xssPage = 1;
-		static void Main(string[] args) {
+		private List<String> urls = new List<String>(46000);
+
+		public void Crawl() {
 			int maxPage = 1530; //the website hasn't been updated in a while, so this is valid now. might need to dynamically set this if the website becomes active
 			for (int page = 1; page <= maxPage; page++) {
 				string data = tryGetUrlData(ArchiveUrl + page);
@@ -27,25 +22,32 @@ namespace XssedCrawler {
 				var mirrors = regexMirror.Matches(data);
 				getVulnerablePages(mirrors);
 			}
+			FileManager.SaveUrlListToDisk(urls);
 		}
 
-		private static void getVulnerablePages(MatchCollection mirrors) {
+		private void getVulnerablePages(MatchCollection mirrors) {
 			foreach (var match in mirrors) {
 				string data = tryGetUrlData(BaseUrl + match.ToString());
-				Regex regexVuln = new Regex("http://vuln.xssed.net(.*?)(?=\\\">)"); //grab the entire url starting with vuln.xssed.net and stopping before the end of the <a> tag
-				var vulnUrl = regexVuln.Matches(data);
-				data = tryGetUrlData(vulnUrl[0].ToString());
-				savePageToDisk(data);
+				extractUrl(data);
+				//extractAndSaveHtmlPage(data);
 			}
 		}
 
-		private static void savePageToDisk(string data) {
-			string fileName = String.Format("Webpage_{0}", xssPage++);
-			string filePath = String.Format(@"webpage\{0}.txt", fileName); //note this will save in Debug or Release folder if run in VS
-			File.WriteAllText(filePath, data);
+		private void extractAndSaveHtmlPage(string data) {
+			Regex regexUrl = new Regex("http://vuln.xssed.net(.*?)(?=\\\">)"); //grab the entire url starting with vuln.xssed.net and stopping before the end of the <a> tag
+			string url = regexUrl.Matches(data)[0].ToString();
+			data = tryGetUrlData(url);
+			FileManager.SaveHtmlToDisk(data, xssPage++);
 		}
 
-		private static string tryGetUrlData(string url) {
+		private void extractUrl(string data) {
+			Regex regexUrl = new Regex(@"(?<=URL: )https?:\/\/(.*?)(?=<\/t)"); //match a URL that starts with URL: and ends with an html tag, but dont include either
+			string url = regexUrl.Matches(data)[0].ToString();
+			url = String.Join("", (url.Split(new[] { "<br>" }, StringSplitOptions.None))); //strip out <br> tags from the URL
+			urls.Add(url);
+		}
+
+		private string tryGetUrlData(string url) {
 			string data = "";
 			try {
 				data = getUrlData(url);
@@ -54,7 +56,7 @@ namespace XssedCrawler {
 			return data;
 		}
 
-		private static string getUrlData(string url) {
+		private string getUrlData(string url) {
 			WebRequest request = WebRequest.Create(url);
 			WebResponse response = request.GetResponse();
 
@@ -62,5 +64,6 @@ namespace XssedCrawler {
 			StreamReader reader = new StreamReader(responseStream);
 			return reader.ReadToEnd();
 		}
+
 	}
 }
