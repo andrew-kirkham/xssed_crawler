@@ -11,7 +11,7 @@ namespace XssedCrawler {
 	public class Crawler {
 		const string BaseUrl = @"http://www.xssed.com";
 		const string ArchiveUrl = BaseUrl + @"/archive/page=";
-		static int xssPage = 1;
+		int xssPage = 1;
 		private List<String> urls = new List<String>(46000);
 
 		public void Crawl() {
@@ -26,8 +26,8 @@ namespace XssedCrawler {
 		}
 
 		private void getVulnerablePages(MatchCollection mirrors) {
-			foreach (var match in mirrors) {
-				string data = tryGetUrlData(BaseUrl + match.ToString());
+			foreach (var pageUrl in mirrors) {
+				string data = tryGetUrlData(BaseUrl + pageUrl.ToString());
 				extractUrl(data);
 				//extractAndSaveHtmlPage(data);
 			}
