@@ -17,8 +17,9 @@ namespace XssedCrawler {
 	class EntryPoint {
 
 		static void Main(string[] args) {
-			Crawler c = new Crawler();
-			c.Crawl();
+			//Crawler c = new Crawler();
+			Dmoz c = new Dmoz();
+			c.Crawl(@"http://www.dmoz.org/");
 		}
 	}
 }
