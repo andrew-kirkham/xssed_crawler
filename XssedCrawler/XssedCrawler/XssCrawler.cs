@@ -8,16 +8,22 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace XssedCrawler {
-	public class Crawler {
-		const string BaseUrl = @"http://www.xssed.com";
-		const string ArchiveUrl = BaseUrl + @"/archive/page=";
-		int xssPage = 1;
-		private List<String> urls = new List<String>(46000);
-
+	public class XssCrawler {
+		private const string BASE_URL = @"http://www.xssed.com";
+		private const string ARCHIVE_URL = BASE_URL + @"/archive/page=";
+		private int xssPage = 1;
+		private List<String> urls = new List<String>(46000); //a little less than 46000 total archived pages
+		
+		/// <summary>
+		/// Crawl through xssed.com to save the vulnerable url and the archived html of the vulnerable page.
+		/// </summary>
+		/// <remarks>
+		/// This takes a long time ~7hours. Not all archived pages have any useful html.
+		/// </remarks>
 		public void Crawl() {
 			int maxPage = 1530; //the website hasn't been updated in a while, so this is valid now. might need to dynamically set this if the website becomes active
 			for (int page = 1; page <= maxPage; page++) {
-				string data = tryGetUrlData(ArchiveUrl + page);
+				string data = tryGetUrlData(ARCHIVE_URL + page);
 				Regex regexMirror = new Regex(@"/mirror/\w*"); //grab the url of /mirror/*
 				var mirrors = regexMirror.Matches(data);
 				getVulnerablePages(mirrors);
@@ -27,7 +33,7 @@ namespace XssedCrawler {
 
 		private void getVulnerablePages(MatchCollection mirrors) {
 			foreach (var pageUrl in mirrors) {
-				string data = tryGetUrlData(BaseUrl + pageUrl.ToString());
+				string data = tryGetUrlData(BASE_URL + pageUrl.ToString());
 				extractUrl(data);
 				//extractAndSaveHtmlPage(data);
 			}
@@ -52,7 +58,8 @@ namespace XssedCrawler {
 			try {
 				data = getUrlData(url);
 			}
-			catch (Exception) { } //very bad but lots of possible exceptions that would get in the way of the crawl - some URL null, some invalid, some 404, etc.
+			catch (Exception) { 
+			} //lots of possible exceptions that would get in the way of the crawl - some URL null, some invalid, some 404, etc.
 			return data;
 		}
 

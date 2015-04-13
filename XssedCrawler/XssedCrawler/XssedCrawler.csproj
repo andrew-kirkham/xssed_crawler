@@ -41,8 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Crawler.cs" />
-    <Compile Include="Dmoz.cs" />
+    <Compile Include="XssCrawler.cs" />
+    <Compile Include="AsyncCrawler.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="EntryPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
