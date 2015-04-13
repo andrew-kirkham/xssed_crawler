@@ -38,25 +38,16 @@ namespace XssedCrawler {
 			history.Add(url);
 			Console.WriteLine(url);
 
-			string htmlPage = await getData(url);
-			var urls = parseData(htmlPage);
+			string htmlPage = await asyncGetUrlData(url);
+			var urls = WebPage.ParseWebPage(htmlPage, @"https?:\/\/(.*?)(?=[""\)'])");
 
 			foreach (var newUrl in urls) {
 				getUrlData(newUrl.ToString());
 			}
 		}
 
-		private MatchCollection parseData(string data) {
-			Regex regexUrl = new Regex(@"https?:\/\/(.*?)(?=[""\)'])"); //match a URL and ends with an html tag, but dont include either
-			return regexUrl.Matches(data);
-		}
-
-		private Task<string> getData(string url) {
-			WebRequest request = WebRequest.Create(url);
-			WebResponse response = request.GetResponse();
-
-			Stream responseStream = response.GetResponseStream();
-			StreamReader reader = new StreamReader(responseStream);
+		private Task<string> asyncGetUrlData(string url) {
+			StreamReader reader = WebPage.GetData(url);
 			return reader.ReadToEndAsync();
 		}
 	}

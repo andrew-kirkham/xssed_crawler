@@ -24,8 +24,7 @@ namespace XssedCrawler {
 			int maxPage = 1530; //the website hasn't been updated in a while, so this is valid now. might need to dynamically set this if the website becomes active
 			for (int page = 1; page <= maxPage; page++) {
 				string data = tryGetUrlData(ARCHIVE_URL + page);
-				Regex regexMirror = new Regex(@"/mirror/\w*"); //grab the url of /mirror/*
-				var mirrors = regexMirror.Matches(data);
+				var mirrors = WebPage.ParseWebPage(data, @"/mirror/\w*");
 				getVulnerablePages(mirrors);
 			}
 			FileManager.SaveUrlListToDisk(urls);
@@ -40,15 +39,15 @@ namespace XssedCrawler {
 		}
 
 		private void extractAndSaveHtmlPage(string data) {
-			Regex regexUrl = new Regex("http://vuln.xssed.net(.*?)(?=\\\">)"); //grab the entire url starting with vuln.xssed.net and stopping before the end of the <a> tag
-			string url = regexUrl.Matches(data)[0].ToString();
+			var matches = WebPage.ParseWebPage(data, "http://vuln.xssed.net(.*?)(?=\\\">)");
+			string url = matches[0].ToString();
 			data = tryGetUrlData(url);
 			FileManager.SaveHtmlToDisk(data, xssPage++);
 		}
 
 		private void extractUrl(string data) {
-			Regex regexUrl = new Regex(@"(?<=URL: )https?:\/\/(.*?)(?=<\/t)"); //match a URL that starts with URL: and ends with an html tag, but dont include either
-			string url = regexUrl.Matches(data)[0].ToString();
+			var matches = WebPage.ParseWebPage(data, @"(?<=URL: )https?:\/\/(.*?)(?=<\/t)");
+			string url = matches[0].ToString();
 			url = String.Join("", (url.Split(new[] { "<br>" }, StringSplitOptions.None))); //strip out <br> tags from the URL
 			urls.Add(url);
 		}
@@ -64,11 +63,7 @@ namespace XssedCrawler {
 		}
 
 		private string getUrlData(string url) {
-			WebRequest request = WebRequest.Create(url);
-			WebResponse response = request.GetResponse();
-
-			Stream responseStream = response.GetResponseStream();
-			StreamReader reader = new StreamReader(responseStream);
+			StreamReader reader = WebPage.GetData(url);
 			return reader.ReadToEnd();
 		}
 

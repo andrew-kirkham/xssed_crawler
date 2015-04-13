@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WebPage.cs" />
     <Compile Include="XssCrawler.cs" />
     <Compile Include="AsyncCrawler.cs" />
     <Compile Include="FileManager.cs" />
