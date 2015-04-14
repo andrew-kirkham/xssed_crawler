@@ -29,5 +29,26 @@ namespace XssedCrawler {
 			string fileName = "Url List.txt";
 			File.WriteAllLines(fileName, urls.ToArray());
 		}
+
+		public static void WriteClassifiedToArff(List<Classification> classifiedUrls){
+			string fileName = "classified_urls.arff";
+			File.Create(fileName);
+			StreamWriter s = File.AppendText(fileName);
+			writeArffHeader(s);
+			writeArffBody(classifiedUrls, s);
+			s.Close();
+		}
+
+		private static void writeArffBody(List<Classification> classifiedUrls, StreamWriter s) {
+			foreach (var c in classifiedUrls) {
+				s.WriteLine("{0}, {1},", c.Characters, c.Characters);
+			}
+		}
+
+		private static void writeArffHeader(StreamWriter s) {
+			s.WriteLine("@RELATION xss");
+			//foreach property in Classification, write attribute <property> <type>
+			s.WriteLine("@DATA");
+		}
 	}
 }

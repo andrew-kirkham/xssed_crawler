@@ -30,6 +30,15 @@ namespace XssedCrawler {
 		/// </summary>
 		/// <pparam name="start">The URL to start the crawl from</pparam>
 		public void Crawl(string startUrl) {
+			try {
+				tryCrawl(startUrl);
+			}
+			catch (Exception) {
+				FileManager.SaveUrlListToDisk(history);
+			}
+		}
+
+		private void tryCrawl(string startUrl) {
 			getUrlData(startUrl);
 			while (future.Count < 1) { }
 			List<string> data = new List<string>();
@@ -46,10 +55,13 @@ namespace XssedCrawler {
 			Console.WriteLine(url);
 
 			string htmlPage = await asyncGetUrlData(url);
-			var urls = WebPage.ParseWebPage(htmlPage, @"https?:\/\/(.*?)(?=[""\)'><])");
+			var urls = WebPage.ParseWebPage(htmlPage, @"https?:\/\/(.*?)(?=[""\)'>< ])");
 			
-			foreach (var newUrl in urls) {
-				if (!newUrl.ToString().Contains('.')) continue;
+			foreach (var nextUrl in urls) {
+				string newUrl = nextUrl.ToString();
+				if (!newUrl.Contains('.')) continue; //removing local redirects
+				if (newUrl.Contains("google") || newUrl.Contains("facebook")) continue; //prevent google/facebook honeypot
+				if (newUrl.Length > 100) continue; //lazy cut out of urls with tons of garbage
 				if (future.Count < 2500) future.Push(newUrl.ToString());
 			}
 		}
