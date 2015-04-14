@@ -34,7 +34,7 @@ namespace XssedCrawler {
 			foreach (var pageUrl in mirrors) {
 				string data = tryGetUrlData(BASE_URL + pageUrl.ToString());
 				extractUrl(data);
-				//extractAndSaveHtmlPage(data);
+				extractAndSaveHtmlPage(data);
 			}
 		}
 
@@ -66,6 +66,5 @@ namespace XssedCrawler {
 			StreamReader reader = WebPage.GetData(url);
 			return reader.ReadToEnd();
 		}
-
 	}
 }

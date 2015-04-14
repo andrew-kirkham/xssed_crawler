@@ -8,12 +8,15 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace XssedCrawler {
+#pragma warning disable 4014
 	public class AsyncCrawler {
 
-		HashSet<string> history;
+		static HashSet<string> history;
+		static Stack<string> future;
 
 		public AsyncCrawler() {
 			history = new HashSet<string>();
+			future = new Stack<string>(2500);
 			Console.CancelKeyPress += new ConsoleCancelEventHandler(cancelEventHandler);
 		}
 
@@ -28,8 +31,12 @@ namespace XssedCrawler {
 		/// <pparam name="start">The URL to start the crawl from</pparam>
 		public void Crawl(string startUrl) {
 			getUrlData(startUrl);
-			while (true) { 
-			} //run indefinitely otherwise the async tasks end
+			while (future.Count < 1) { }
+			List<string> data = new List<string>();
+
+			while (future.Peek() != null) {
+				getUrlData(future.Pop());
+			}
 		}
 
 		async Task getUrlData(string url) {
@@ -39,10 +46,11 @@ namespace XssedCrawler {
 			Console.WriteLine(url);
 
 			string htmlPage = await asyncGetUrlData(url);
-			var urls = WebPage.ParseWebPage(htmlPage, @"https?:\/\/(.*?)(?=[""\)'])");
-
+			var urls = WebPage.ParseWebPage(htmlPage, @"https?:\/\/(.*?)(?=[""\)'><])");
+			
 			foreach (var newUrl in urls) {
-				getUrlData(newUrl.ToString());
+				if (!newUrl.ToString().Contains('.')) continue;
+				if (future.Count < 2500) future.Push(newUrl.ToString());
 			}
 		}
 

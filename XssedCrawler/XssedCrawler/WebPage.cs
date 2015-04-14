@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace XssedCrawler {
-	class WebPage {
+	static class WebPage {
 
 		public static StreamReader GetData(string url) {
 			WebRequest request = WebRequest.Create(url);

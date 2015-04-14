@@ -26,7 +26,7 @@ namespace XssedCrawler {
 		/// Saves a list of urls to a single txt document
 		/// </summary>
 		public static void SaveUrlListToDisk(IEnumerable<String> urls) {
-			string fileName = "Vulnerable URLs.txt";
+			string fileName = "Url List.txt";
 			File.WriteAllLines(fileName, urls.ToArray());
 		}
 	}
