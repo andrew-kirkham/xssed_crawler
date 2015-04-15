@@ -11,7 +11,6 @@ namespace XssedCrawler {
 	class EntryPoint {
 
 		static void Main(string[] args) {
-			FileManager.WriteClassifiedToArff(null);
 			char selection = promptUser();
 			selectTask(selection);
 		}
@@ -27,8 +26,7 @@ namespace XssedCrawler {
 					x.Crawl();
 					break;
 				case 'm':
-					var m = new Classification();
-					m.ClassifyAll();
+					FileManager.ClassifyAll();
 					break;
 				default:
 					Console.WriteLine("Command not recognized");

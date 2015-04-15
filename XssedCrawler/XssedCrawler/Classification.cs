@@ -7,30 +7,20 @@ using System.Text.RegularExpressions;
 
 namespace XssedCrawler {
 	public class Classification {
-		public int Characters = 0; //number of special characters <>;()"'
-		public int ScriptCount = 0; //number of "script" references
-		public int EncodedCharacters = 0; //number of decimal/hex characters
-		public int EventHandlers = 0; //number of javascript event handlers
+		public int Characters; //number of special characters <>;()"'
+		public int ScriptCount; //number of "script" references
+		public int EncodedCharacters; //number of decimal/hex characters
+		public int EventHandlers; //number of javascript event handlers
 
-		public Classification Classify(string url) {
+		public Classification(string url) {
 			classifyChars(url);
 			classifyScript(url);
 			classifyEncoded(url);
 			classifyEvents(url);
-			return new Classification();
-		}
-
-		public void ClassifyAll() {
-			List<Classification> c = new List<Classification>();
-			List<string> urls = File.ReadLines(FileManager.URL_LIST_FILE).ToList();
-			foreach (var url in urls) {
-				c.Add(Classify(url));
-			}
-			FileManager.WriteClassifiedToArff(c);
 		}
 
 		private void classifyChars(string url) {
-			Regex r = new Regex(@"[<>;()""]''");
+			Regex r = new Regex(@"[<>;()""']");
 			Characters = r.Matches(url).Count;
 		}
 
@@ -44,13 +34,15 @@ namespace XssedCrawler {
 			int decimalCount = r.Matches(url).Count;
 			r = new Regex(@"(&#x)\d{0,}\w{0,}");
 			int hexCount = r.Matches(url).Count;
-			EncodedCharacters = decimalCount + hexCount;
+			r = new Regex(@"(%)\d{0,}");
+			int encoded = r.Matches(url).Count;
+			EncodedCharacters = decimalCount + hexCount + encoded;
 		}
 
 		private void classifyEvents(string url) {
 			IEnumerable<string> events = FileManager.LoadEvents();
 			foreach (var ev in events) {
-				if (url.Contains(ev)) EventHandlers++;
+				if (url.ToLower().Contains(ev.ToLower())) EventHandlers++;
 			}
 		}
 	}

@@ -13,6 +13,7 @@ namespace XssedCrawler {
 	public static class FileManager {
 
 		public const string URL_LIST_FILE = @"Url List.txt";
+		public const string VULN_URL_LIST_FILE = @"Vulnerable URLs.txt";
 		public const string ARFF_FILE = @"classified_urls.arff";
 		public const string EVENT_LIST_FILE = @"javascript_events.txt";
 
@@ -31,35 +32,44 @@ namespace XssedCrawler {
 		/// Saves a list of urls to a single txt document
 		/// </summary>
 		public static void SaveUrlListToDisk(IEnumerable<String> urls) {
-			File.WriteAllLines(URL_LIST_FILE, urls.ToArray());
+			File.AppendAllLines(URL_LIST_FILE, urls.ToArray());
 		}
 
 		public static void WriteClassifiedToArff(List<Classification> classifiedUrls){
 			File.Create(ARFF_FILE).Close();
 			StreamWriter s = File.AppendText(ARFF_FILE);
 			writeArffHeader(s);
-			//writeArffBody(classifiedUrls, s);
+			writeArffBody(classifiedUrls, s);
 			s.Close();
 		}
 
 		private static void writeArffBody(List<Classification> classifiedUrls, StreamWriter s) {
 			foreach (var c in classifiedUrls) {
-				s.WriteLine("{0}, {1},", c.Characters, c.Characters);
+				s.WriteLine("{0}, {1}, {2}, {3}", c.Characters, c.ScriptCount, c.EncodedCharacters, c.EventHandlers);
 			}
 		}
 
 		private static void writeArffHeader(StreamWriter s) {
-			s.WriteLine("@RELATION xss");
+			s.WriteLine("@RELATION xss\n");
 			foreach (var property in typeof(Classification).GetFields()) {
 				s.WriteLine("@ATTRIBUTE {0} NUMERIC", property.Name);
 			}
-			//foreach property in Classification, write attribute <property> <type>
-			s.WriteLine("@DATA");
+			s.WriteLine("\n@DATA");
 		}
 
 		public static IEnumerable<string> LoadEvents() {
 			IEnumerable<string> events =  File.ReadLines(EVENT_LIST_FILE);
 			return events;
+		}
+
+		public static void ClassifyAll() {
+			List<Classification> c = new List<Classification>();
+			List<string> urls = File.ReadLines(FileManager.VULN_URL_LIST_FILE).ToList();
+			urls = urls.Concat(File.ReadLines(FileManager.URL_LIST_FILE)).ToList();
+			foreach (var url in urls) {
+				c.Add(new Classification(url));
+			}
+			FileManager.WriteClassifiedToArff(c);
 		}
 	}
 }
