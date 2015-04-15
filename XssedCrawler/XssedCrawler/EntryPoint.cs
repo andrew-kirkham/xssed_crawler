@@ -19,7 +19,7 @@ namespace XssedCrawler {
 			switch (selection) {
 				case 'c':
 					var c = new AsyncCrawler();
-					c.Crawl(@"http://www.dmoz.org/");
+					c.Crawl(@"http://www.reddit.com");
 					break;
 				case 'x':
 					var x = new XssCrawler();

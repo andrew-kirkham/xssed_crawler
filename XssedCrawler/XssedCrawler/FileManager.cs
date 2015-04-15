@@ -35,12 +35,27 @@ namespace XssedCrawler {
 			File.AppendAllLines(URL_LIST_FILE, urls.ToArray());
 		}
 
-		public static void WriteClassifiedToArff(List<Classification> classifiedUrls){
+		private static void writeClassifiedToArff(List<Classification> classifiedUrls){
 			File.Create(ARFF_FILE).Close();
 			StreamWriter s = File.AppendText(ARFF_FILE);
 			writeArffHeader(s);
 			writeArffBody(classifiedUrls, s);
 			s.Close();
+		}
+
+		public static IEnumerable<string> LoadEvents() {
+			IEnumerable<string> events = File.ReadLines(EVENT_LIST_FILE);
+			return events;
+		}
+
+		public static void ClassifyAll() {
+			List<Classification> c = new List<Classification>();
+			List<string> urls = File.ReadLines(FileManager.VULN_URL_LIST_FILE).ToList();
+			urls = urls.Concat(File.ReadLines(FileManager.URL_LIST_FILE)).ToList();
+			foreach (var url in urls) {
+				c.Add(new Classification(url));
+			}
+			writeClassifiedToArff(c);
 		}
 
 		private static void writeArffBody(List<Classification> classifiedUrls, StreamWriter s) {
@@ -55,21 +70,6 @@ namespace XssedCrawler {
 				s.WriteLine("@ATTRIBUTE {0} NUMERIC", property.Name);
 			}
 			s.WriteLine("\n@DATA");
-		}
-
-		public static IEnumerable<string> LoadEvents() {
-			IEnumerable<string> events =  File.ReadLines(EVENT_LIST_FILE);
-			return events;
-		}
-
-		public static void ClassifyAll() {
-			List<Classification> c = new List<Classification>();
-			List<string> urls = File.ReadLines(FileManager.VULN_URL_LIST_FILE).ToList();
-			urls = urls.Concat(File.ReadLines(FileManager.URL_LIST_FILE)).ToList();
-			foreach (var url in urls) {
-				c.Add(new Classification(url));
-			}
-			FileManager.WriteClassifiedToArff(c);
 		}
 	}
 }
