@@ -69,7 +69,8 @@ namespace XssedCrawler {
 		private static void writeArffHeader(StreamWriter s) {
 			s.WriteLine("@RELATION xss\n");
 			foreach (var property in typeof(Classification).GetFields()) {
-				s.WriteLine("@ATTRIBUTE {0} NUMERIC", property.Name);
+				if (property.Name == "Class") s.WriteLine("@ATTRIBUTE {0} {{TRUE, FALSE}}", property.Name);
+				else s.WriteLine("@ATTRIBUTE {0} NUMERIC", property.Name);
 			}
 			s.WriteLine("\n@DATA");
 		}
