@@ -15,7 +15,8 @@ namespace XssedCrawler {
 		public const string URL_LIST_FILE = @"Url List.txt";
 		public const string VULN_URL_LIST_FILE = @"Vulnerable URLs.txt";
 		public const string ARFF_FILE = @"classified_urls.arff";
-		public const string EVENT_LIST_FILE = @"javascript_events.txt";
+		public const string JS_EVENT_LIST_FILE = @"javascript_events.txt";
+		public const string DOM_EVENT_LIST_FILE = "dom_events.txt";
 
 		/// <summary>
 		/// Saves an html page as Webpage_"pageNumber"
@@ -43,24 +44,25 @@ namespace XssedCrawler {
 			s.Close();
 		}
 
-		public static IEnumerable<string> LoadEvents() {
-			IEnumerable<string> events = File.ReadLines(EVENT_LIST_FILE);
+		public static IEnumerable<string> LoadJavascriptEvents() {
+			IEnumerable<string> events = File.ReadLines(JS_EVENT_LIST_FILE);
 			return events;
 		}
 
 		public static void ClassifyAll() {
 			List<Classification> c = new List<Classification>();
-			List<string> urls = File.ReadLines(FileManager.VULN_URL_LIST_FILE).ToList();
-			urls = urls.Concat(File.ReadLines(FileManager.URL_LIST_FILE)).ToList();
-			foreach (var url in urls) {
-				c.Add(new Classification(url));
+			foreach (var negativeUrl in File.ReadLines(FileManager.URL_LIST_FILE)) {
+				c.Add(new Classification(negativeUrl, "FALSE"));
+			}
+			foreach (var positiveUrl in File.ReadLines(FileManager.VULN_URL_LIST_FILE)) {
+				c.Add(new Classification(positiveUrl, "TRUE"));
 			}
 			writeClassifiedToArff(c);
 		}
 
 		private static void writeArffBody(List<Classification> classifiedUrls, StreamWriter s) {
 			foreach (var c in classifiedUrls) {
-				s.WriteLine("{0}, {1}, {2}, {3}", c.Characters, c.ScriptCount, c.EncodedCharacters, c.EventHandlers);
+				s.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}", c.Characters, c.ScriptCount, c.EncodedCharacters, c.JsEventHandlers, c.DomEvents, c.Class);
 			}
 		}
 
@@ -71,5 +73,11 @@ namespace XssedCrawler {
 			}
 			s.WriteLine("\n@DATA");
 		}
+
+		public static IEnumerable<string> LoadDomEvents() {
+			IEnumerable<string> events = File.ReadLines(DOM_EVENT_LIST_FILE);
+			return events;
+		}
+
 	}
 }

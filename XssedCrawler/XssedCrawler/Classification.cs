@@ -10,26 +10,34 @@ namespace XssedCrawler {
 		public int Characters; //number of special characters <>;()"'
 		public int ScriptCount; //number of "script" references
 		public int EncodedCharacters; //number of decimal/hex characters
-		public int EventHandlers; //number of javascript event handlers
+		public int JsEventHandlers; //number of javascript event handlers
+		public int DomEvents; //number of dom interactions
+		public string Class; //positive (1) or negative (0) example
 
-		public Classification(string url) {
-			classifyChars(url);
-			classifyScript(url);
-			classifyEncoded(url);
-			classifyEvents(url);
+		private string url;
+
+		public Classification(string url, string example) {
+			this.url = url;
+			classifyChars();
+			classifyScript();
+			classifyEncoded();
+			classifyJavascriptEvents();
+			classifyDomEvents();
+			Class = example;
 		}
 
-		private void classifyChars(string url) {
+
+		private void classifyChars() {
 			Regex r = new Regex(@"[<>;()""']");
 			Characters = r.Matches(url).Count;
 		}
 
-		private void classifyScript(string url) {
+		private void classifyScript() {
 			Regex r = new Regex("(script)");
 			ScriptCount = r.Matches(url).Count;
 		}
 
-		private void classifyEncoded(string url) {
+		private void classifyEncoded() {
 			Regex r = new Regex(@"(&#)\d{0,}");
 			int decimalCount = r.Matches(url).Count;
 			r = new Regex(@"(&#x)\d{0,}\w{0,}");
@@ -39,10 +47,17 @@ namespace XssedCrawler {
 			EncodedCharacters = decimalCount + hexCount + encoded;
 		}
 
-		private void classifyEvents(string url) {
-			IEnumerable<string> events = FileManager.LoadEvents();
+		private void classifyJavascriptEvents() {
+			IEnumerable<string> events = FileManager.LoadJavascriptEvents();
 			foreach (var ev in events) {
-				if (url.ToLower().Contains(ev.ToLower())) EventHandlers++;
+				if (url.ToLower().Contains(ev.ToLower())) JsEventHandlers++;
+			}
+		}
+
+		private void classifyDomEvents() {
+			IEnumerable<string> events = FileManager.LoadDomEvents();
+			foreach (var ev in events) {
+				if (url.ToLower().Contains(ev.ToLower())) DomEvents++;
 			}
 		}
 	}
