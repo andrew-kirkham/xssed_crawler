@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace XssedCrawler {
@@ -42,17 +43,19 @@ namespace XssedCrawler {
 			EncodedCharacters = decimalCount + hexCount + encoded;
 		}
 
-		private void classifyJavascriptEvents() {
+		private void classifyJavascriptEvents()
+		{
 			IEnumerable<string> events = FileManager.LoadJavascriptEvents();
-			foreach (var ev in events) {
-				if (url.ToLower().Contains(ev.ToLower())) JsEventHandlers++;
+			foreach (var ev in events.Where(ev => url.ToLower().Contains(ev.ToLower()))) {
+				JsEventHandlers++;
 			}
 		}
 
-		private void classifyDomEvents() {
+		private void classifyDomEvents()
+		{
 			IEnumerable<string> events = FileManager.LoadDomEvents();
-			foreach (var ev in events) {
-				if (url.ToLower().Contains(ev.ToLower())) DomEvents++;
+			foreach (var ev in events.Where(ev => url.ToLower().Contains(ev.ToLower()))) {
+				DomEvents++;
 			}
 		}
 	}

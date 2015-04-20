@@ -58,7 +58,7 @@ namespace XssedCrawler {
 				if (!newUrl.Contains('.')) continue; //removing local redirects
 				if (newUrl.Contains("google") || newUrl.Contains("facebook")) continue; //prevent google/facebook honeypot
 				//if (newUrl.Length > 100) continue; //lazy cut out of urls with tons of garbage
-				if (newUrl.Contains("www.w3.org")) continue;
+				if (newUrl.Contains("www.w3.org")) continue; //lots of pages link to w3 standards
 				if (future.Count < 2500) future.Push(newUrl);
 			}
 		}
