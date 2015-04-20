@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace XssedCrawler {
 	public class XssCrawler {
@@ -32,7 +28,7 @@ namespace XssedCrawler {
 
 		private void getVulnerablePages(MatchCollection mirrors) {
 			foreach (var pageUrl in mirrors) {
-				string data = tryGetUrlData(BASE_URL + pageUrl.ToString());
+				string data = tryGetUrlData(BASE_URL + pageUrl);
 				extractUrl(data);
 				extractAndSaveHtmlPage(data);
 			}

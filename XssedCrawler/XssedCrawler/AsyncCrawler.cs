@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace XssedCrawler {
@@ -17,7 +14,7 @@ namespace XssedCrawler {
 		public AsyncCrawler() {
 			history = new HashSet<string>();
 			future = new Stack<string>(2500);
-			Console.CancelKeyPress += new ConsoleCancelEventHandler(cancelEventHandler);
+			Console.CancelKeyPress += cancelEventHandler;
 		}
 
 		private void cancelEventHandler(object sender, ConsoleCancelEventArgs e) {
@@ -40,15 +37,14 @@ namespace XssedCrawler {
 
 		private void tryCrawl(string startUrl) {
 			getUrlData(startUrl);
-			while (future.Count < 1) { }
-			List<string> data = new List<string>();
+			while (future.Count < 1) { } //waiting for the crawler to return results as we have exhausted the list
 
 			while (future.Peek() != null) {
 				getUrlData(future.Pop());
 			}
 		}
 
-		async Task getUrlData(string url) {
+		async void getUrlData(string url) {
 			if (history.Contains(url)) return;
 
 			history.Add(url);
@@ -63,7 +59,7 @@ namespace XssedCrawler {
 				if (newUrl.Contains("google") || newUrl.Contains("facebook")) continue; //prevent google/facebook honeypot
 				//if (newUrl.Length > 100) continue; //lazy cut out of urls with tons of garbage
 				if (newUrl.Contains("www.w3.org")) continue;
-				if (future.Count < 2500) future.Push(newUrl.ToString());
+				if (future.Count < 2500) future.Push(newUrl);
 			}
 		}
 

@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace XssedCrawler {
 	/// <summary>
@@ -36,25 +33,31 @@ namespace XssedCrawler {
 			File.AppendAllLines(URL_LIST_FILE, urls.ToArray());
 		}
 
-		private static void writeClassifiedToArff(List<Classification> classifiedUrls){
-			File.Create(ARFF_FILE).Close();
-			StreamWriter s = File.AppendText(ARFF_FILE);
-			writeArffHeader(s);
-			writeArffBody(classifiedUrls, s);
-			s.Close();
-		}
-
+		/// <summary>
+		/// Load the list of javascript handlers from a file
+		/// </summary>
 		public static IEnumerable<string> LoadJavascriptEvents() {
 			IEnumerable<string> events = File.ReadLines(JS_EVENT_LIST_FILE);
 			return events;
 		}
 
+		/// <summary>
+		/// Load the list of DOM handlers from a file
+		/// </summary>
+		public static IEnumerable<string> LoadDomEvents() {
+			IEnumerable<string> events = File.ReadLines(DOM_EVENT_LIST_FILE);
+			return events;
+		}
+
+		/// <summary>
+		/// Read in both URL lists, classify the contents, and save the results to a new file.
+		/// </summary>
 		public static void ClassifyAll() {
 			List<Classification> c = new List<Classification>();
-			foreach (var negativeUrl in File.ReadLines(FileManager.URL_LIST_FILE)) {
+			foreach (var negativeUrl in File.ReadLines(URL_LIST_FILE)) {
 				c.Add(new Classification(negativeUrl, "FALSE"));
 			}
-			foreach (var positiveUrl in File.ReadLines(FileManager.VULN_URL_LIST_FILE)) {
+			foreach (var positiveUrl in File.ReadLines(VULN_URL_LIST_FILE)) {
 				c.Add(new Classification(positiveUrl, "TRUE"));
 			}
 			writeClassifiedToArff(c);
@@ -75,10 +78,12 @@ namespace XssedCrawler {
 			s.WriteLine("\n@DATA");
 		}
 
-		public static IEnumerable<string> LoadDomEvents() {
-			IEnumerable<string> events = File.ReadLines(DOM_EVENT_LIST_FILE);
-			return events;
+		private static void writeClassifiedToArff(List<Classification> classifiedUrls) {
+			File.Create(ARFF_FILE).Close();
+			StreamWriter s = File.AppendText(ARFF_FILE);
+			writeArffHeader(s);
+			writeArffBody(classifiedUrls, s);
+			s.Close();
 		}
-
 	}
 }

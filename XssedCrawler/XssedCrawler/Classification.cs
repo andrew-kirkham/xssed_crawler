@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace XssedCrawler {
@@ -12,7 +8,7 @@ namespace XssedCrawler {
 		public int EncodedCharacters; //number of decimal/hex characters
 		public int JsEventHandlers; //number of javascript event handlers
 		public int DomEvents; //number of dom interactions
-		public string Class; //positive (1) or negative (0) example
+		public string Class; //positive (TRUE) or negative (FALSE) example
 
 		private string url;
 
@@ -25,7 +21,6 @@ namespace XssedCrawler {
 			classifyDomEvents();
 			Class = example;
 		}
-
 
 		private void classifyChars() {
 			Regex r = new Regex(@"[<>;()""']");
