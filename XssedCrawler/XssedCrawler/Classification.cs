@@ -11,7 +11,7 @@ namespace XssedCrawler {
 		public int DomEvents; //number of dom interactions
 		public string Class; //positive (TRUE) or negative (FALSE) example
 
-		private string url;
+		public string url;
 
 		public Classification(string url, string example) {
 			this.url = url;
@@ -43,20 +43,30 @@ namespace XssedCrawler {
 			EncodedCharacters = decimalCount + hexCount + encoded;
 		}
 
-		private void classifyJavascriptEvents()
-		{
+		private void classifyJavascriptEvents() {
 			IEnumerable<string> events = FileManager.LoadJavascriptEvents();
 			foreach (var ev in events.Where(ev => url.ToLower().Contains(ev.ToLower()))) {
 				JsEventHandlers++;
 			}
 		}
 
-		private void classifyDomEvents()
-		{
+		private void classifyDomEvents() {
 			IEnumerable<string> events = FileManager.LoadDomEvents();
 			foreach (var ev in events.Where(ev => url.ToLower().Contains(ev.ToLower()))) {
 				DomEvents++;
 			}
+		}
+
+		public override bool Equals(object obj) {
+			var c = obj as Classification;
+			if (c == null) return false;
+			if (c.Characters != this.Characters) return false;
+			if (c.Class != this.Class) return false;
+			if (c.DomEvents != this.DomEvents) return false;
+			if (c.EncodedCharacters != this.EncodedCharacters) return false;
+			if (c.JsEventHandlers != this.JsEventHandlers) return false;
+			if (c.ScriptCount != this.ScriptCount) return false;
+			return true;
 		}
 	}
 }

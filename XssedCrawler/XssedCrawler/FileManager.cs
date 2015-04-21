@@ -52,14 +52,12 @@ namespace XssedCrawler {
 		/// <summary>
 		/// Read in both URL lists, classify the contents, and save the results to a new file.
 		/// </summary>
-		public static void ClassifyAll() {
-			List<Classification> c = new List<Classification>();
-			foreach (var negativeUrl in File.ReadLines(URL_LIST_FILE)) {
-				c.Add(new Classification(negativeUrl, "FALSE"));
-			}
-			foreach (var positiveUrl in File.ReadLines(VULN_URL_LIST_FILE)) {
-				c.Add(new Classification(positiveUrl, "TRUE"));
-			}
+		public static void ClassifyAll()
+		{
+			var c = new List<Classification>();
+			
+			c.AddRange(File.ReadLines(URL_LIST_FILE).Select(negativeUrl => new Classification(negativeUrl, "FALSE")));
+			c.AddRange(File.ReadLines(VULN_URL_LIST_FILE).Select(positiveUrl => new Classification(positiveUrl, "TRUE")));
 			writeClassifiedToArff(c);
 		}
 
