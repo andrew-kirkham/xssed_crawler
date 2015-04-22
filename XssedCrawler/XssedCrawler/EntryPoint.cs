@@ -50,7 +50,7 @@ namespace XssedCrawler {
 		private static void cleanData() {
 			var falsePositive = new Classification("", "TRUE");
 			var data = File.ReadAllLines(FileManager.VULN_URL_LIST_FILE);
-			List<Classification> cl = data.Select(url => new Classification(url, "TRUE")).Where(c => c.Equals(falsePositive)).ToList();
+			List<Classification> cl = data.Select(url => new Classification(url, "TRUE")).Where(c => c.AreIdentical(falsePositive)).ToList();
 			List<string> urls = cl.Select(c => c.url).ToList();
 			File.WriteAllLines("test.txt", urls);
 		}

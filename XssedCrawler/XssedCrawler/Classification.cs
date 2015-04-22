@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text.RegularExpressions;
 
 namespace XssedCrawler {
@@ -57,8 +59,12 @@ namespace XssedCrawler {
 			}
 		}
 
-		public override bool Equals(object obj) {
-			var c = obj as Classification;
+		/// <summary>
+		/// Compares two classifications and returns whether they are identical ignoring the source url
+		/// </summary>
+		/// <param name="c">The classification to compare with</param>
+		/// <returns>True if the two are identical</returns>
+		public bool AreIdentical(Classification c) {
 			if (c == null) return false;
 			if (c.Characters != this.Characters) return false;
 			if (c.Class != this.Class) return false;
