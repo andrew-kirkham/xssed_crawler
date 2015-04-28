@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace XssedCrawler {
 	static class EntryPoint {
@@ -17,7 +16,7 @@ namespace XssedCrawler {
 				switch (selection) {
 					case 'c':
 						var c = new AsyncCrawler();
-						c.Crawl(@"http://www.reddit.com");
+						c.Crawl(@"http://httparchive.org/urls.php?start=1&end=10000");
 						break;
 					case 'x':
 						var x = new XssCrawler();

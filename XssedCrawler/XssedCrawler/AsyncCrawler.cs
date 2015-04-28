@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,12 +15,13 @@ namespace XssedCrawler {
 
 		public AsyncCrawler() {
 			history = new HashSet<string>();
-			future = new Stack<string>(2500);
+			future = new Stack<string>(10000);
 			Console.CancelKeyPress += cancelEventHandler;
 		}
 
 		private void cancelEventHandler(object sender, ConsoleCancelEventArgs e) {
 			FileManager.SaveUrlListToDisk(history);
+			FileManager.SaveUrlListToDisk(future);
 		}
 
 		/// <summary>
@@ -33,6 +35,7 @@ namespace XssedCrawler {
 			}
 			catch (Exception) {
 				FileManager.SaveUrlListToDisk(history);
+				FileManager.SaveUrlListToDisk(future);
 			}
 		}
 
@@ -52,19 +55,19 @@ namespace XssedCrawler {
 			Console.WriteLine(url);
 			var htmlPage = await asyncGetHtmlPage(url);
 
-			var urls = WebPage.ParseWebPage(htmlPage, @"(?<="")https?:\/\/(.*?)(?="")");
-			
-			addToFuture(urls);
+			var urls = WebPage.ParseWebPage(htmlPage, @"<a href=(.*?)(?=<)");
+			var list = (from object u in urls let r = new Regex("(?<=>)http:(.*)") select r.Match(u.ToString()).ToString());
+			addToFuture(list);
 		}
 
-		private static void addToFuture(MatchCollection urls) {
+		private static void addToFuture(IEnumerable urls) {
 			foreach (var nextUrl in urls) {
 				string newUrl = nextUrl.ToString();
 				if (!newUrl.Contains('.')) continue; //removing local redirects
 				if (newUrl.Contains("google") || newUrl.Contains("facebook")) continue; //prevent google/facebook honeypot
 				if (newUrl.Length > 100) continue; //lazy cut out of urls with tons of garbage
 				if (newUrl.Contains("www.w3.org")) continue; //lots of pages link to w3 standards
-				if (future.Count < 2500) future.Push(newUrl);
+				if (future.Count < 10000) future.Push(newUrl);
 			}
 		}
 
